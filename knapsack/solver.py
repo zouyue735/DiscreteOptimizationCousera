@@ -18,11 +18,11 @@ def solve_it(input_data):
     for i in range(1, item_count+1):
         line = lines[i]
         parts = line.split()
-        items.append(Item(i-1, int(parts[0]), int(parts[1])))
+        items.append(base.Item(i-1, int(parts[0]), int(parts[1])))
     
     # prepare the solution in the specified output format
 
-    solver = KnapsackSolver()
+    solver = base.KnapsackSolver()
     solution = solver.solve(item_count, capacity, items)
 
     output_data = str(solution.value) + ' ' + str(solution.is_optimal) + '\n'

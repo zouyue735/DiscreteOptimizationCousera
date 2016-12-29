@@ -7,7 +7,7 @@ Solution = namedtuple("Solution", ['value', 'is_optimal', 'taken'])
 
 class KnapsackSolver:
 
-    def solve(n: int, K: int, items: list) -> Solution:
+    def solve(self, n: int, K: int, items: list) -> Solution:
         # a trivial greedy algorithm for filling the knapsack
         # it takes items in-order until the knapsack is full
         value = 0
