@@ -22,16 +22,16 @@ class ItemTree:
     currentNode = None
 
     def __init__(self, items: list):
-        self.items = items[:]
+        items = items[:]
 
     def nextItem(self) -> Item:
-        if self.currentIdx == len(self.items) - 1:
+        if currentIdx == len(items) - 1:
             return None
         else:
-            return self.items[self.currentIdx + 1]
+            return items[currentIdx + 1]
 
     def remainingItems(self) -> list:
-        return self.items[(self.currentIdx + 1):]
+        return items[(currentIdx + 1):]
 
     def walk(self, take: bool) -> bool:
         if currentIdx == len(items) - 1:
