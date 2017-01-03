@@ -1,7 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import base
+from base import *
+from BranchAndBoundSolver import * 
+from MyBranchAndBoundSolvers import *
+from DPSolver import *
+from ImprovedDPSolver import *
+from HybridSolver import *
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -18,15 +23,29 @@ def solve_it(input_data):
     for i in range(1, item_count+1):
         line = lines[i]
         parts = line.split()
-        items.append(base.Item(i-1, int(parts[0]), int(parts[1])))
+        items.append(Item(i-1, int(parts[0]), int(parts[1])))
     
     # prepare the solution in the specified output format
 
-    solver = base.KnapsackSolver()
+    # solver = base.KnapsackSolver()
+    # solver = BranchAndBoundSolver()
+    # solver = MyBranchAndBoundSolver()
+    if item_count < 300:
+        solver = ImprovedDPSolver()
+    elif item_count < 500:
+        solver = MyBranchAndBoundSolver()
+    elif item_count < 2000:
+        solver = ImprovedDPSolver()
+    else:
+        solver = ImprovedDPSolver()
+    # solver = ImprovedDPSolver()
+    # solver = HybridSolver()
+
     solution = solver.solve(item_count, capacity, items)
 
-    output_data = str(solution.value) + ' ' + str(solution.is_optimal) + '\n'
-    output_data += ' '.join(map(str, solution.taken))
+    output_data = str(solution.value) + ' ' + str(solution.is_optimal * 1) + '\n'
+    output_data += ' '.join(map(lambda taken: str(taken * 1), solution.taken))
+    #print('\n'.join(map(lambda item: str(item.value) + ',' + str(item.weight), items)))
     return output_data
 
 

@@ -1,81 +1,177 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import base
+from base import *
 
-class BranchAndBoundSolver(KnapsackSolver):
+class Node:
 
-    def estimate(self, n: int, K: int, items: list) -> int:
-        return list(sum(list(map(lambda item: item.value, items))))
+    def __init__(self, item: Item, taken: bool, pruned: bool, parent, child_zero, child_one):
+        self.item = item
+        self.taken = taken
+        self.pruned = pruned
+        self.parent = parent
+        self.child_zero = child_zero
+        self.child_one = child_one
 
-    def solve(self, n: int, K: int, items: list) -> Solution:
-        tree = ItemTree()
-
-
-
-Node = namedtuple("Node", ['item', 'taken', 'pruned', 'parent', 'child_zero', 'child_one'])
 
 class ItemTree:
 
-    items = []
-    currentIdx = -1
-    currentNode = None
-
     def __init__(self, items: list):
-        items = items[:]
+        self.items = items[:]
+        self.currentIdx = -1
+        self.currentNode = None
+        self.root_one = None
+        self.root_zero = None
 
     def nextItem(self) -> Item:
-        if currentIdx == len(items) - 1:
+        if self.currentIdx == len(self.items) - 1:
             return None
         else:
-            return items[currentIdx + 1]
+            return self.items[self.currentIdx + 1]
 
     def remainingItems(self) -> list:
-        return items[(currentIdx + 1):]
+        return self.items[(self.currentIdx + 1):]
 
-    def walk(self, take: bool) -> bool:
-        if currentIdx == len(items) - 1:
+    def prune(self):
+        self.currentNode.pruned = True
+
+        del self.currentNode.child_zero
+        del self.currentNode.child_one
+
+        self.currentIdx = self.currentIdx - 1
+        self.currentNode = self.currentNode.parent
+
+    def has_child(self, take: bool) -> bool:
+        if self.currentIdx == len(self.items) - 1:
             return False
 
-        if currentNode:
-            if take:
-                if not currentNode.child_one:
-                    currentNode.child_one = Node(nextItem(), take, False, currentNode, None, None)
-
-                nextNode = currentNode.child_one
+        if take:
+            if self.currentNode:
+                if self.currentNode.child_one:
+                    return True
+                else:
+                    return False
             else:
-                if not currentNode.child_zero:
-                    currentNode.child_zero = Node(nextItem(), take, False, currentNode, None, None)
-
-                nextNode = currentNode.child_zero
+                if self.root_one:
+                    return True
+                else:
+                    return False
         else:
-            nextNode = Node(nextItem(), take, False, None, None, None)
+            if self.currentNode:
+                if self.currentNode.child_zero:
+                    return True
+                else:
+                    return False
+            else:
+                if self.root_zero:
+                    return True
+                else:
+                    return False
+
+
+    def walk(self, take: bool) -> bool:
+        if self.currentIdx == len(self.items) - 1:
+            return False
+
+        if self.currentNode:
+            if take:
+                if not self.currentNode.child_one:
+                    self.currentNode.child_one = Node(self.nextItem(), take, False, self.currentNode, None, None)
+
+                nextNode = self.currentNode.child_one
+            else:
+                if not self.currentNode.child_zero:
+                    self.currentNode.child_zero = Node(self.nextItem(), take, False, self.currentNode, None, None)
+
+                nextNode = self.currentNode.child_zero
+        else:
+            nextNode = Node(self.nextItem(), take, False, None, None, None)
+            if take:
+                self.root_one = nextNode
+            else:
+                self.root_zero = nextNode
 
         if nextNode.pruned:
             return False
 
-        currentIdx++
-        currentNode = nextNode
+        self.currentIdx = self.currentIdx + 1
+        self.currentNode = nextNode
+
+        return True
+
+    def walk_back(self) -> bool:
+        if self.currentIdx == -1:
+            return False
+
+        self.currentIdx = self.currentIdx - 1
+        self.currentNode = self.currentNode.parent
         return True
 
     def currentPath(self) -> Solution:
-        if not currentNode:
+        if not self.currentNode:
             return None
 
         is_optimal = True
-        taken = [currentNode.taken]
+        taken = [self.currentNode.taken]
         value = 0
-        if taken:
-            value = currentNode.item.value
+        weight = 0
+        if taken[0]:
+            value = self.currentNode.item.value
+            weight = self.currentNode.item.weight
 
-        node = currentNode
+        node = self.currentNode.parent
 
-        while node.parent:
+        while node:
             taken.append(node.taken)
 
             if node.taken:
                 value = value + node.item.value
+                weight = weight + node.item.weight
 
             node = node.parent
 
-        return Solution(value, is_optimal, taken.reverse())
+        taken.reverse()
+
+        return Solution(value, weight, is_optimal, taken)
+
+
+class Branch:
+
+    def branch(self, n: int, K: int, items: list, tree: ItemTree) -> bool:
+        return False
+
+
+class Bound:
+
+    def bound(self, n: int, K: int, items: list) -> float:
+        return sum(list(map(lambda item: item.value, items)))
+
+
+class BranchAndBoundSolver(KnapsackSolver, Bound, Branch):
+
+    def solve(self, n: int, K: int, items: list) -> Solution:
+        processed_items = self.preprocess(n, K, items)
+        
+        tree = ItemTree(processed_items)
+        optimum = super().solve(n, K, processed_items)
+
+        while self.branch(n, K, processed_items, tree):
+            currentSolution = tree.currentPath()
+            #print(currentSolution)
+            if currentSolution.weight > K:
+                tree.prune()
+                continue
+
+            estimation = self.bound(n, K - currentSolution.weight, tree.remainingItems()) + currentSolution.value
+            if estimation <= optimum.value:
+                tree.prune()
+            elif not tree.nextItem():
+                if currentSolution.value > optimum.value:
+                    optimum = currentSolution
+
+        solution = Solution(optimum.value, optimum.weight, optimum.is_optimal, [False] * n)
+        for i, item in enumerate(processed_items):
+            #print(item.value, item.weight, optimum.taken[i])
+            solution.taken[item.index] = optimum.taken[i]
+                    
+        return solution
