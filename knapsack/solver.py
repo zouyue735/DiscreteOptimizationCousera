@@ -39,7 +39,7 @@ def solve_it(input_data):
     else:
         solver = ImprovedDPSolver()
     # solver = ImprovedDPSolver()
-    # solver = HybridSolver()
+    solver = HybridSolver()
 
     solution = solver.solve(item_count, capacity, items)
 

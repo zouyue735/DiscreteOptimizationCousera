@@ -68,6 +68,24 @@ class ItemTree:
                 else:
                     return False
 
+    def child_pruned(self):
+        child_zero = None
+        child_one = None
+
+        if self.currentNode:
+            if self.currentNode.pruned:
+                return True
+
+            if not self.currentNode.child_one or not self.currentNode.child_zero:
+                return False
+
+            return self.currentNode.child_zero.pruned and self.currentNode.child_one.pruned
+        else:
+            if not self.root_one or not self.root_zero:
+                return False
+
+            return self.root_zero.pruned and self.root_one.pruned
+
 
     def walk(self, take: bool) -> bool:
         if self.currentIdx == len(self.items) - 1:
