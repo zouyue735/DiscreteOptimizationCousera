@@ -133,7 +133,7 @@ class HybridSolver(KnapsackSolver, LinearBound, DepthFirstBranch):
 
     def preprocess(self, n: int, K: int, items: list) -> list:
         # return sorted(items, key = lambda x: x.value / x.weight, reverse = True)
-        return sorted(items, key = lambda x: (x.value / x.weight), reverse = True)
+        return sorted(items, key = lambda x: (x.weight), reverse = True)
 
     def bound(self, n: int, K: int, items: list) -> float:
         sorted_items = super().preprocess(n, K, items)
