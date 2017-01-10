@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from ColoringSolver import *
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -20,11 +21,12 @@ def solve_it(input_data):
 
     # build a trivial solution
     # every node has its own color
-    solution = range(0, node_count)
+    solver = ColoringSolver()
+    solution = solver.solve(node_count, edge_count, edges)
 
     # prepare the solution in the specified output format
-    output_data = str(node_count) + ' ' + str(0) + '\n'
-    output_data += ' '.join(map(str, solution))
+    output_data = str(solution.color_count) + ' ' + str(int(solution.is_optimal())) + '\n'
+    output_data += ' '.join(map(str, solution.colors))
 
     return output_data
 
