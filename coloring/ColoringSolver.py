@@ -16,19 +16,4 @@ class Solution:
 class ColoringSolver:
 
     def solve(self, nc: int, ec: int, edges: list) -> Solution:
-        return Solution(list(range(0, nc)));
-
-
-class Constraint:
-
-    def feasible(self, domain: Domain) -> bool:
-        return True
-
-    def prune(self, domain: Domain):
-        pass
-
-
-class Search:
-
-    def search(self, domain: Domain) -> Constraint:
-        return None
+        return Solution(list(range(0, nc)))

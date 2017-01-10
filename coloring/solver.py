@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ColoringSolver import *
+from CPColoringSolver import *
 
 def solve_it(input_data):
     # Modify this code to run your optimization algorithm
@@ -21,7 +22,7 @@ def solve_it(input_data):
 
     # build a trivial solution
     # every node has its own color
-    solver = ColoringSolver()
+    solver = CPColoringSolver()
     solution = solver.solve(node_count, edge_count, edges)
 
     # prepare the solution in the specified output format

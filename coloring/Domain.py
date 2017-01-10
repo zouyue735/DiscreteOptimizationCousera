@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# TODO: test if value assigned, get value
-
 class Node:
 
     def __init__(self, index: int, nc: int = 0, edges: list = []):
@@ -13,9 +11,25 @@ class Node:
             self.neighbours = []
             for (v1, v2) in edges:
                 if v1 == index:
-                    neighbours.append(v2)
+                    self.neighbours.append(v2)
                 elif v2 == index:
-                    neighbours.append(v1)
+                    self.neighbours.append(v1)
+
+    def is_value(self):
+        return len(domains) == 1
+
+    def get_value(self):
+        if len(domains) == 1:
+            return list(domains)[0]
+
+        return None
+
+    def prune(self, value: int) -> bool:
+        if value in domains:
+            domains.remove(value)
+            return True
+
+        return False
 
 
 class Domain:
